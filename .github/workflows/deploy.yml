@@ -27,7 +27,7 @@ jobs:
 
       # 4️⃣ Build frontend Docker image
       - name: Build Frontend Image
-        run: docker build -t aveelash/mean-frontend:latest ./frontend
+        run: docker build --no-cache -t aveelash/mean-frontend:latest ./frontend
 
       # 5️⃣ Push images to Docker Hub
       - name: Push Images
