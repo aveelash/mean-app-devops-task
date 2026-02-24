@@ -38,12 +38,12 @@ jobs:
       # 6️⃣ Deploy on EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
+        env:
+          SHA: ${{ github.sha }} # pass SHA as env
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          env:
-            SHA: ${{ github.sha }}
           script: |
             echo "Pulling latest images..."
             docker pull aveelash/mean-backend:$SHA
@@ -52,8 +52,6 @@ jobs:
             echo "Stopping old containers..."
             docker stop mean-backend || true
             docker stop mean-frontend || true
-            docker rm mean-backend || true
-            docker rm mean-frontend || true
             docker rm -f mean-backend mean-frontend || true
 
             echo "Running new containers..."
