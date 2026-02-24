@@ -42,10 +42,12 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
+          env:
+            SHA: ${{ github.sha }}
           script: |
             echo "Pulling latest images..."
-            docker pull aveelash/mean-backend:${GITHUB_SHA}
-            docker pull aveelash/mean-frontend:${GITHUB_SHA}
+            docker pull aveelash/mean-backend:$SHA
+            docker pull aveelash/mean-frontend:$SHA
 
             echo "Stopping old containers..."
             docker stop mean-backend || true
@@ -55,7 +57,7 @@ jobs:
             docker rm -f mean-backend mean-frontend || true
 
             echo "Running new containers..."
-            docker run -d --name mean-backend -p 8080:8080 aveelash/mean-backend:${GITHUB_SHA}
-            docker run -d --name mean-frontend -p 80:80 aveelash/mean-frontend:${GITHUB_SHA}
+            docker run -d --name mean-backend -p 8080:8080 aveelash/mean-backend:$SHA
+            docker run -d --name mean-frontend -p 80:80 aveelash/mean-frontend:$SHA
 
             echo "Deployment completed!"
