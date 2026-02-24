@@ -6,18 +6,12 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Backend Image
         run: docker build -t aveelash/mean-backend:latest ./backend
@@ -29,3 +23,25 @@ jobs:
         run: |
           docker push aveelash/mean-backend:latest
           docker push aveelash/mean-frontend:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Pull latest images (or rebuild frontend files if not using Docker)
+            docker pull aveelash/mean-backend:latest
+            docker pull aveelash/mean-frontend:latest
+
+            # Stop old containers
+            docker stop mean-backend || true
+            docker stop mean-frontend || true
+
+            # Run new containers
+            docker run -d --name mean-backend -p 8080:8080 aveelash/mean-backend:latest
+            docker run -d --name mean-frontend -p 80:80 aveelash/mean-frontend:latest
+
+            # Optional: Reload NGINX if needed
+            sudo systemctl reload nginx
