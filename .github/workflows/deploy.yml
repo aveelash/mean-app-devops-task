@@ -55,6 +55,6 @@ jobs:
 
             echo "Running new containers..."
             docker run -d --name mean-backend -p 8080:8080 aveelash/mean-backend:latest
-            docker run -d --name mean-frontend -p 3000:80 aveelash/mean-frontend:latest
+            docker run -d --name mean-frontend -p 80:80 aveelash/mean-frontend:latest
 
             echo "Deployment completed!"
